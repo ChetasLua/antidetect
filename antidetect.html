@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indra AntiDetect Testing Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #0f3460;
+            --accent-color: #e94560;
+            --light-color: #16213e;
+            --dark-color: #0f0f0f;
+            --text-color: #e7e7e7;
+            --success-color: #4ecca3;
+            --warning-color: #ffbd69;
+            --neon-glow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.2);
+            --transition-time: 0.3s;
+            --matrix-color: #00ff41;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--dark-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes matrixRain {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(10, 10, 10, 0.92), rgba(10, 10, 10, 0.92)), 
+                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='800' viewBox='0 0 400 800'%3E%3Cstyle%3E @keyframes fall %7B from %7B transform: translateY(-100%25); %7D to %7B transform: translateY(100%25); %7D %7D .matrix %7B animation: fall 20s linear infinite; opacity: 0.5; %7D %3C/style%3E%3Ctext x='20' y='20' fill='%2300ff41' class='matrix' style='animation-delay: 0s;'%3E01010111000101010%3C/text%3E%3Ctext x='120' y='40' fill='%2300ff41' class='matrix' style='animation-delay: 2s;'%3E1001100111%3C/text%3E%3Ctext x='220' y='60' fill='%2300ff41' class='matrix' style='animation-delay: 1s;'%3E0101110001%3C/text%3E%3Ctext x='70' y='80' fill='%2300ff41' class='matrix' style='animation-delay: 3s;'%3E110011001%3C/text%3E%3Ctext x='170' y='100' fill='%2300ff41' class='matrix' style='animation-delay: 0.5s;'%3E01011011%3C/text%3E%3Ctext x='270' y='120' fill='%2300ff41' class='matrix' style='animation-delay: 2.5s;'%3E1101001110%3C/text%3E%3C/svg%3E");
+            animation: matrixRain 60s linear infinite;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1000;
+            animation: glowPulse 5s infinite alternate;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        @keyframes glowPulse {
+            0% { box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2); }
+            100% { box-shadow: 0 4px 25px rgba(233, 69, 96, 0.6); }
+        }
+        
+        @keyframes headerFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            animation: headerFadeIn 0.8s ease forwards;
+        }
+        
+        .logo-container i {
+            margin-right: 15px;
+            font-size: 2rem;
+            color: var(--accent-color);
+            animation: logoPulse 2s infinite alternate;
+        }
+        
+        @keyframes logoPulse {
+            0% { text-shadow: 0 0 5px rgba(233, 69, 96, 0.5); }
+            100% { text-shadow: 0 0 15px rgba(233, 69, 96, 1), 0 0 30px rgba(233, 69, 96, 0.5); }
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--light-color);
+            overflow-y: auto;
+            border-right: 1px solid #333;
+            transition: all 0.3s ease;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .content-header {
+            padding: 1.2rem;
+            background: linear-gradient(to right, rgba(26, 26, 46, 0.9), rgba(15, 52, 96, 0.9));
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-time) ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-header h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-weight: 600;
+            position: relative;
+            transition: all var(--transition-time) ease;
+            padding-left: 12px;
+            text-shadow: 0 0 5px rgba(231, 231, 231, 0.3);
+        }
+        
+        .content-header h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.8);
+            animation: pulseGlow 2s infinite alternate;
+        }
+        
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(233, 69, 96, 0.3); }
+            100% { box-shadow: 0 0 15px rgba(233, 69, 96, 0.8); }
+        }
+
+        .iframe-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding: 12px;
+            background: linear-gradient(145deg, rgba(15, 15, 15, 0.8), rgba(20, 20, 30, 0.8));
+            border: 1px solid #333;
+            border-radius: 5px;
+            margin: 10px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease-in-out;
+            background-color: #fff;
+        }
+
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 10, 20, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease-in-out;
+            border-radius: 5px;
+        }
+
+        .spinner {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            margin-bottom: 20px;
+        }
+
+        .spinner:before, .spinner:after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            animation-duration: 1.8s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+        }
+
+        .spinner:before {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(233, 69, 96, 0.2);
+            animation-name: pulse;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .spinner:after {
+            width: 60%;
+            height: 60%;
+            background-color: var(--accent-color);
+            top: 20%;
+            left: 20%;
+            animation-name: pulse-inner;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        @keyframes pulse-inner {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .loading-screen p {
+            color: var(--text-color);
+            font-size: 16px;
+            margin-top: 10px;
+            text-shadow: 0 0 5px rgba(231, 231, 231, 0.5);
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+            animation: textFlicker 1.5s infinite alternate;
+        }
+        
+        @keyframes textFlicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px var(--accent-color), 0 0 82px var(--accent-color); }
+            20%, 24%, 55% { text-shadow: none; }
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-category {
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            padding: 12px 15px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--accent-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .category-header::after {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.1), transparent);
+            transition: all 0.5s ease;
+            z-index: -1;
+        }
+
+        .category-header:hover {
+            background-color: #2a2a4e;
+        }
+        
+        .category-header:hover::after {
+            left: 100%;
+            transition: all 0.5s ease 0.1s;
+        }
+        
+        .category-header i {
+            transition: transform 0.3s ease;
+        }
+        
+        .category-header.active i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .category-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        
+        .category-items.show {
+            max-height: 500px;
+        }
+
+        .nav-item {
+            padding: 12px 15px 12px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(22, 33, 62, 0.7);
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--accent-color);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.1), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(15, 52, 96, 0.5);
+            padding-left: 35px;
+        }
+
+        .nav-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .nav-item:hover::after {
+            left: 100%;
+        }
+
+        .nav-item.active {
+            background-color: var(--secondary-color);
+            color: white;
+            padding-left: 35px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-item.active::before {
+            transform: scaleY(1);
+            background-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), 0 0 10px rgba(15, 52, 96, 0.5);
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .action-button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-button:hover {
+            background-color: #1a487e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(15, 52, 96, 0.7);
+            border: 1px solid rgba(233, 69, 96, 0.5);
+        }
+        
+        .action-button:hover i {
+            animation: iconPulse 1s infinite alternate;
+        }
+        
+        @keyframes iconPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+        
+        .action-button:hover::after {
+            left: 100%;
+        }
+        
+        .action-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-button i {
+            color: var(--accent-color);
+        }
+
+        .report-section {
+            padding: 20px;
+            background-color: rgba(10, 10, 20, 0.8);
+            border-top: 1px solid #333;
+            max-height: 30%;
+            overflow-y: auto;
+            display: none;
+            animation: slideInUp 0.4s ease forwards;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .report-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .report-title h3 {
+            color: var(--text-color);
+            text-shadow: 0 0 5px rgba(231, 231, 231, 0.3);
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+        }
+
+        .report-content {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            background-color: rgba(15, 15, 15, 0.7);
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            color: var(--text-color);
+            border: 1px solid #444;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-sidebar {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 20px;
+            z-index: 1001;
+        }
+        
+        .toggle-sidebar i {
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-sidebar:hover i {
+            transform: scale(1.2);
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .toggle-sidebar {
+                display: block;
+            }
+            
+            .sidebar {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%);
+                z-index: 100;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--success-color);
+            color: var(--dark-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 20px rgba(78, 204, 163, 0.5);
+            z-index: 1000;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            border-left: 4px solid rgba(255, 255, 255, 0.7);
+            animation: notificationSlideIn 0.3s forwards;
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        @keyframes notificationSlideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes notificationSlideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+        
+        .notification.error {
+            background-color: var(--accent-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 20px rgba(233, 69, 96, 0.5);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 189, 105, 0.5);
+        }
+        
+        .notification::after {
+            content: '×';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        
+        .notification:hover::after {
+            opacity: 1;
+        }
+
+        .direct-link-warning {
+            display: none;
+            padding: 12px;
+            background-color: rgba(255, 189, 105, 0.2);
+            color: var(--warning-color);
+            text-align: center;
+            border-radius: 4px;
+            margin: 10px;
+            border: 1px solid rgba(255, 189, 105, 0.3);
+            animation: warningPulse 2s infinite alternate;
+        }
+        
+        @keyframes warningPulse {
+            0% { box-shadow: 0 0 5px rgba(255, 189, 105, 0.2); }
+            100% { box-shadow: 0 0 15px rgba(255, 189, 105, 0.4); }
+        }
+
+        .ip-status {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(10, 10, 20, 0.5);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+        
+        .ip-status i {
+            color: var(--accent-color);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Terminal typing effect for the title */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--accent-color);
+            white-space: nowrap;
+            margin: 0;
+            letter-spacing: 2px;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent-color); }
+        }
+        
+        /* Tool tip for hover on buttons */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .tooltip:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Language selector styles */
+        .language-selector {
+            position: absolute;
+            right: 160px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(10, 10, 20, 0.5);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            z-index: 100;
+        }
+
+        .language-option {
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .language-option:hover, .language-option.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .language-option.active {
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .language-flag {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Contact button */
+        .contact-button {
+            margin-top: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 12px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            animation: contactGlow 3s infinite alternate;
+        }
+
+        @keyframes contactGlow {
+            0% { box-shadow: 0 0 5px rgba(233, 69, 96, 0.3); }
+            100% { box-shadow: 0 0 15px rgba(233, 69, 96, 0.6); }
+        }
+
+        .contact-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(to right, #1a487e, var(--accent-color));
+        }
+
+        .contact-button i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <i class="fas fa-shield-virus"></i>
+            <h1 class="typewriter" id="main-title">Indra AntiDetect Testing Suite</h1>
+        </div>
+        <div class="language-selector">
+            <div class="language-option active" data-lang="en">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjM1IDY1MCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48cGF0aCBmaWxsPSIjYjIyMjM0IiBkPSJNMCAwaDEyMzV2NjUwSDB6Ii8+PHBhdGggZD0iTTAgNTBoMTIzNXY1MEgwem0wIDEwMGgxMjM1djUwSDB6bTAgMTAwaDEyMzV2NjUwSDB6Ii8+PC9zdmc+" alt="English" class="language-flag">
+                <span>EN</span>
+            </div>
+            <div class="language-option" data-lang="ru">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NTAgMzAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDQ1MHYzMDBIMHoiLz48cGF0aCBmaWxsPSIjMDA1MmI0IiBkPSJNMCAxMDBoNDUwdjEwMEgweiIvPjxwYXRoIGZpbGw9IiNkNTJiMWUiIGQ9Ik0wIDIwMGg0NTB2MTAwSDB6Ii8+PC9zdmc+" width="20" height="15" class="language-flag">
+                <span>RU</span>
+            </div>
+            <div class="language-option" data-lang="zh">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDgwMCI+PHBhdGggZmlsbD0iI2RlMjkxMCIgZD0iTTAgMGgxMjAwdjgwMEgweiIvPjxwYXRoIGZpbGw9IiNmZmRlMDAiIGQ9Ik0gMzAsMzAgbCA2MCwxODAgTCAzMCwyMTAgaCAxODAgTCAxMzUsMjQwIEwgMTk1LDQyMCBMIDEyMCwzMzAgTCA0NSw0MjAgTCAxMDUsMjQwIEwgMzAsMjEwIHoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE1MCwxMjApIi8+PHBhdGggZmlsbD0iI2ZmZGUwMCIgZD0ibSAzNzAsMjEwIDEwLDEwIC0xMCwxNSAyMCw1IC0xNSwxNSAyMCwtNSAxMCwxNSA1LC0yMCAxNSwxMCAtMTAsLTE1IDE1LC01IC0yMCwtNSAwLC0yMCAtNSwxNSAtMTUsLTUgNSwxOCIvPjxwYXRoIGZpbGw9IiNmZmRlMDAiIGQ9Im0gNDUwLDE1MCAxNSwxMCAtNSwxNSAxMCwwIDAsMTAgLTEwLDUgMCwxMCAtMTAsLTUgLTMsMTcgLTcsMTAgLTEwLC0xMCAtNSwtMTUgLTE1LDEwIDUsLTE1IC0xNywtMyAzLC03IDE3LC0zIiB0cmFuc2Zvcm09InJvdGF0ZSgzMCwzOTUsMTk1KSIvPjxwYXRoIGZpbGw9IiNmZmRlMDAiIGQ9Im0gNDAwLDMwMCAyMCwtNSAtMTAsMjAgMTAsNSAtMTUsMTAgLTMvMTUgLTEyLC01IC00LDEwIC01LC0xMCAtMTAsMjAgLTUsLTE1IC0xMiwzIC00LC0xOCAxLCAtMTIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00MCwtMzApIi8+PHBhdGggZmlsbD0iI2ZmZGUwMCIgZD0ibSAzMjUsMjY1IC01LDggLTEwLDQgLTEyLDAgLTEwLC01IC01LC03IDAsLTEwIDMsLTggNywtNyAxMCwtMyAxMiwzIDcsNyAzLDggeiIvPjwvc3ZnPg==" width="20" height="15" class="language-flag">
+                <span>ZH</span>
+            </div>
+        </div>
+        <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-category">
+                    <div class="category-header active">
+                        <span><i class="fas fa-fingerprint"></i> Browser Fingerprinting</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="category-items show">
+                        <li class="nav-item" data-url="https://amiunique.org/fingerprint">
+                            <i class="fas fa-fingerprint"></i>
+                            <span>AmIUnique</span>
+                        </li>
+                        <li class="nav-item" data-url="https://pixelscan.net/">
+                            <i class="fas fa-eye"></i>
+                            <span>PixelScan</span>
+                        </li>
+                        <li class="nav-item" data-url="https://abrahamjuliot.github.io/creepjs/">
+                            <i class="fas fa-ghost"></i>
+                            <span>CreepJS</span>
+                        </li>
+                        <li class="nav-item" data-url="https://whoer.net/">
+                            <i class="fas fa-mask"></i>
+                            <span>Whoer.net</span>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-network-wired"></i> Network & IP Analysis</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="category-items">
+                        <li class="nav-item" data-url="https://scamalytics.com/ip" data-is-scamalytics="true">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Scamalytics Fraud Score</span>
+                        </li>
+                        <li class="nav-item" data-url="http://witch.valdikss.org.ru/">
+                            <i class="fas fa-magic"></i>
+                            <span>Witch TCP Fingerprint</span>
+                        </li>
+                        <li class="nav-item" data-url="https://incolumitas.com/pages/TCP-IP-Fingerprint/">
+                            <i class="fas fa-id-card"></i>
+                            <span>TCP/IP Fingerprint</span>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-microscope"></i> Advanced Testing</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="category-items">
+                        <li class="nav-item" data-url="https://emailrep.io/">
+                            <i class="fas fa-envelope"></i>
+                            <span>EmailRep Check</span>
+                        </li>
+                        <li class="nav-item" data-url="https://www.browserscan.net/tls">
+                            <i class="fas fa-lock"></i>
+                            <span>Browser TLS Scan</span>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-tools"></i> Other Tools</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="category-items">
+                        <li class="nav-item" data-url="http://172.86.96.108:8080/index.html">
+                            <i class="fas fa-server"></i>
+                            <span>IP Test Server</span>
+                        </li>
+                        <li class="nav-item" data-url="https://networktest.twilio.com/">
+                            <i class="fas fa-phone"></i>
+                            <span>Twilio Network Test</span>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <div class="contact-button">
+                <i class="fas fa-envelope"></i> <span id="contact-text">Contact @psivaita for Analysis</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h2 id="current-test-title">Select a Test from the Sidebar</h2>
+                <div class="button-container">
+                    <button class="action-button tooltip" id="refresh-btn" data-tooltip="Reload current test">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="action-button tooltip" id="direct-link-btn" data-tooltip="Open in new tab">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Direct Link</span>
+                    </button>
+                    <button class="action-button tooltip" id="report-btn" data-tooltip="Save to report">
+                        <i class="fas fa-clipboard"></i>
+                        <span>Add to Report</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="direct-link-warning" id="direct-link-warning">
+                <i class="fas fa-exclamation-triangle"></i> <span id="warning-text">Some sites may block iframe embedding. If you see a blank screen, click "Direct Link" to open in a new tab.</span>
+            </div>
+
+            <div class="iframe-container">
+                <div class="loading-screen" id="loading-screen">
+                    <div class="spinner"></div>
+                    <p id="loading-text">INITIALIZING TEST...</p>
+                </div>
+                <iframe id="test-frame" src="about:blank" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals"></iframe>
+            </div>
+
+            <div class="report-section" id="report-section">
+                <div class="report-title">
+                    <h3><i class="fas fa-file-code"></i> <span id="report-title-text">Test Report</span></h3>
+                    <div class="button-container">
+                        <button class="action-button tooltip" id="copy-report-btn" data-tooltip="Copy to clipboard">
+                            <i class="fas fa-copy"></i>
+                            <span id="copy-btn-text">Copy</span>
+                        </button>
+                        <button class="action-button tooltip" id="clear-report-btn" data-tooltip="Clear report">
+                            <i class="fas fa-trash"></i>
+                            <span id="clear-btn-text">Clear</span>
+                        </button>
+                        <button class="action-button tooltip" id="toggle-report-btn" data-tooltip="Toggle report view">
+                            <i class="fas fa-chevron-down"></i>
+                            <span id="toggle-btn-text">Hide</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="report-content" id="report-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const sidebar = document.querySelector('.sidebar');
+            const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
+            const navItems = document.querySelectorAll('.nav-item');
+            const testFrame = document.getElementById('test-frame');
+            const currentTestTitle = document.getElementById('current-test-title');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const directLinkBtn = document.getElementById('direct-link-btn');
+            const reportBtn = document.getElementById('report-btn');
+            const reportSection = document.getElementById('report-section');
+            const reportContent = document.getElementById('report-content');
+            const copyReportBtn = document.getElementById('copy-report-btn');
+            const clearReportBtn = document.getElementById('clear-report-btn');
+            const toggleReportBtn = document.getElementById('toggle-report-btn');
+            const notification = document.getElementById('notification');
+            const loadingScreen = document.getElementById('loading-screen');
+            const directLinkWarning = document.getElementById('direct-link-warning');
+            const categoryHeaders = document.querySelectorAll('.category-header');
+            const languageOptions = document.querySelectorAll('.language-option');
+            
+            // Language-specific texts
+            const translations = {
+                en: {
+                    title: "Indra AntiDetect Testing Suite",
+                    loadingText: "INITIALIZING TEST...",
+                    directLinkWarning: "Some sites may block iframe embedding. If you see a blank screen, click \"Direct Link\" to open in a new tab.",
+                    reportTitle: "Test Report",
+                    copyBtnText: "Copy",
+                    clearBtnText: "Clear",
+                    hideBtnText: "Hide",
+                    showBtnText: "Show",
+                    contactText: "Contact @psivaita for Analysis",
+                    refreshText: "Refreshing test...",
+                    openingText: "Opening in new tab",
+                    addedToReportText: "Added to report",
+                    reportCopiedText: "Report copied to clipboard",
+                    copyFailedText: "Failed to copy: ",
+                    reportClearedText: "Report cleared",
+                    reportEmptyText: "Report is already empty",
+                    nothingToCopyText: "Nothing to copy - report is empty",
+                    welcomeText: "Welcome to Indra AntiDetect Suite v1.0"
+                },
+                ru: {
+                    title: "Indra AntiDetect Комплекс тестирования",
+                    loadingText: "ИНИЦИАЛИЗАЦИЯ ТЕСТА...",
+                    directLinkWarning: "Некоторые сайты могут блокировать встраивание iframe. Если вы видите пустой экран, нажмите \"Прямая ссылка\", чтобы открыть в новой вкладке.",
+                    reportTitle: "Отчет о тестировании",
+                    copyBtnText: "Копировать",
+                    clearBtnText: "Очистить",
+                    hideBtnText: "Скрыть",
+                    showBtnText: "Показать",
+                    contactText: "Свяжитесь с @psivaita для анализа",
+                    refreshText: "Обновление теста...",
+                    openingText: "Открытие в новой вкладке",
+                    addedToReportText: "Добавлено в отчет",
+                    reportCopiedText: "Отчет скопирован в буфер обмена",
+                    copyFailedText: "Ошибка копирования: ",
+                    reportClearedText: "Отчет очищен",
+                    reportEmptyText: "Отчет уже пуст",
+                    nothingToCopyText: "Нечего копировать - отчет пуст",
+                    welcomeText: "Добро пожаловать в Indra AntiDetect Suite v1.0"
+                },
+                zh: {
+                    title: "Indra AntiDetect 测试套件",
+                    loadingText: "正在初始化测试...",
+                    directLinkWarning: "某些网站可能会阻止iframe嵌入。如果您看到空白屏幕，请点击\"直接链接\"在新标签页中打开。",
+                    reportTitle: "测试报告",
+                    copyBtnText: "复制",
+                    clearBtnText: "清除",
+                    hideBtnText: "隐藏",
+                    showBtnText: "显示",
+                    contactText: "联系 @psivaita 进行分析",
+                    refreshText: "刷新测试...",
+                    openingText: "在新标签页中打开",
+                    addedToReportText: "已添加到报告",
+                    reportCopiedText: "报告已复制到剪贴板",
+                    copyFailedText: "复制失败: ",
+                    reportClearedText: "报告已清除",
+                    reportEmptyText: "报告已经是空的",
+                    nothingToCopyText: "没有内容可复制 - 报告为空",
+                    welcomeText: "欢迎使用 Indra AntiDetect Suite v1.0"
+                }
+            };
+
+            // Add notification animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes notificationSlideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes notificationSlideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Global variables
+            let currentUrl = '';
+            let reportData = localStorage.getItem('indra-antidetect-report') || '';
+            let userIP = '';
+            let currentLanguage = 'en';
+            
+            // Function to detect user's country by IP and set appropriate language
+            async function detectUserCountry() {
+                try {
+                    const response = await fetch('https://ipapi.co/json/');
+                    const data = await response.json();
+                    userIP = data.ip || '127.0.0.1';
+                    
+                    // Set language based on country code
+                    if (data.country_code === 'RU') {
+                        setLanguage('ru');
+                    } else if (['CN', 'TW', 'HK'].includes(data.country_code)) {
+                        setLanguage('zh');
+                    } else {
+                        setLanguage('en');
+                    }
+                    
+                    // Update the IP display
+                    updateIPDisplay(userIP, data.country_code);
+                    
+                } catch (error) {
+                    console.error('Error detecting country:', error);
+                    // Fallback to getting just the IP
+                    try {
+                        const ipResponse = await fetch('https://api.ipify.org?format=json');
+                        const ipData = await ipResponse.json();
+                        userIP = ipData.ip || '127.0.0.1';
+                        updateIPDisplay(userIP);
+                    } catch (ipError) {
+                        console.error('Error getting IP:', ipError);
+                        userIP = '127.0.0.1';
+                        updateIPDisplay(userIP);
+                    }
+                }
+            }
+            
+            // Update IP display with country flag if available
+            function updateIPDisplay(ip, countryCode = '') {
+                const ipStatusDiv = document.querySelector('.ip-status') || document.createElement('div');
+                ipStatusDiv.className = 'ip-status';
+                
+                let flagHtml = '';
+                if (countryCode) {
+                    flagHtml = `<img src="https://flagcdn.com/w20/${countryCode.toLowerCase()}.png" width="20" height="15" style="margin-right:5px;border-radius:2px;"> `;
+                }
+                
+                ipStatusDiv.innerHTML = `<i class="fas fa-network-wired"></i> IP: ${flagHtml}${ip}`;
+                
+                if (!document.querySelector('.ip-status')) {
+                    document.querySelector('header').appendChild(ipStatusDiv);
+                }
+            }
+            
+            // Function to set the UI language
+            function setLanguage(lang) {
+                currentLanguage = lang;
+                const texts = translations[lang];
+                
+                // Update all translatable elements
+                document.getElementById('main-title').textContent = texts.title;
+                document.getElementById('loading-text').textContent = texts.loadingText;
+                document.getElementById('warning-text').textContent = texts.directLinkWarning;
+                document.getElementById('report-title-text').textContent = texts.reportTitle;
+                document.getElementById('copy-btn-text').textContent = texts.copyBtnText;
+                document.getElementById('clear-btn-text').textContent = texts.clearBtnText;
+                document.getElementById('toggle-btn-text').textContent = 
+                    reportSection.style.display === 'block' ? texts.hideBtnText : texts.showBtnText;
+                document.getElementById('contact-text').textContent = texts.contactText;
+                
+                // Update language selector
+                languageOptions.forEach(option => {
+                    option.classList.toggle('active', option.dataset.lang === lang);
+                });
+                
+                // Store the language preference
+                localStorage.setItem('indra-language', lang);
+            }
+            
+            // Initialize the report content
+            reportContent.textContent = reportData;
+
+            // Add page transitions
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            // Set a small timeout to ensure the page transition animation runs
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+            
+            // Initialize
+            init();
+
+            // Functions
+            function init() {
+                // Check for stored language preference
+                const storedLanguage = localStorage.getItem('indra-language');
+                if (storedLanguage && translations[storedLanguage]) {
+                    setLanguage(storedLanguage);
+                } else {
+                    // Detect user's country and set language
+                    detectUserCountry();
+                }
+                
+                // Setup event listeners
+                toggleSidebarBtn.addEventListener('click', toggleSidebar);
+                refreshBtn.addEventListener('click', refreshIframe);
+                directLinkBtn.addEventListener('click', openDirectLink);
+                reportBtn.addEventListener('click', addToReport);
+                copyReportBtn.addEventListener('click', copyReport);
+                clearReportBtn.addEventListener('click', clearReport);
+                toggleReportBtn.addEventListener('click', toggleReport);
+
+                // Setup language selector listeners
+                languageOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        setLanguage(this.dataset.lang);
+                    });
+                });
+                
+                // Handle notifications click to dismiss
+                notification.addEventListener('click', function() {
+                    notification.style.animation = 'notificationSlideOut 0.3s forwards';
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 300);
+                });
+
+                navItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        navItems.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Special handling for Scamalytics
+                        if (this.dataset.isScamalytics === 'true') {
+                            loadScamalyticsWithIP();
+                        } else {
+                            loadTest(this.dataset.url, this.querySelector('span').textContent);
+                        }
+                    });
+                });
+
+                categoryHeaders.forEach(header => {
+                    header.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        const categoryItems = this.parentElement.querySelector('.category-items');
+                        const icon = this.querySelector('i:last-child');
+                        
+                        if (categoryItems.classList.contains('show')) {
+                            categoryItems.classList.remove('show');
+                            icon.classList.remove('fa-chevron-up');
+                            icon.classList.add('fa-chevron-down');
+                        } else {
+                            categoryItems.classList.add('show');
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-up');
+                        }
+                    });
+                });
+
+                // Load first test by default
+                if (navItems.length > 0) {
+                    navItems[0].classList.add('active');
+                    loadTest(navItems[0].dataset.url, navItems[0].querySelector('span').textContent);
+                }
+
+                // Handle iframe load event
+                testFrame.addEventListener('load', function() {
+                    // Add a small delay before showing the iframe for smoother transition
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            testFrame.style.opacity = '1';
+                        }, 300);
+                    }, 800);
+                    
+                    // Special handling for Twilio test - attempt to auto-click captcha
+                    if (currentUrl.includes('networktest.twilio.com')) {
+                        try {
+                            // Try to access iframe content (may fail due to CORS)
+                            const frameDoc = testFrame.contentDocument || testFrame.contentWindow.document;
+                            
+                            // Set interval to keep trying to find and click the captcha
+                            const captchaInterval = setInterval(() => {
+                                try {
+                                    // Look for the captcha checkbox
+                                    const captchaBox = frameDoc.querySelector('div.recaptcha-checkbox-border');
+                                    if (captchaBox) {
+                                        captchaBox.click();
+                                        clearInterval(captchaInterval);
+                                        console.log('Auto-clicked captcha');
+                                        showNotification(translations[currentLanguage].refreshText, 'success');
+                                    }
+                                } catch (e) {
+                                    console.log('Still trying to find captcha...');
+                                }
+                            }, 1000);
+                            
+                            // Stop trying after 10 seconds
+                            setTimeout(() => {
+                                clearInterval(captchaInterval);
+                            }, 10000);
+                            
+                        } catch (e) {
+                            console.log('Could not access Twilio frame content due to CORS:', e);
+                            directLinkWarning.style.display = 'block';
+                        }
+                    }
+                    
+                    // Check if iframe loaded successfully
+                    try {
+                        // This will throw an error if the iframe content is not accessible due to CORS
+                        const frameContent = testFrame.contentDocument || testFrame.contentWindow.document;
+                        directLinkWarning.style.display = 'none';
+                    } catch (e) {
+                        // Show warning for potential iframe restrictions
+                        directLinkWarning.style.display = 'block';
+                    }
+                });
+                
+                // Add matrix effect to loading text
+                const loadingText = document.querySelector('.loading-screen p');
+                let originalText = loadingText.textContent;
+                let counter = 0;
+                
+                setInterval(() => {
+                    if (loadingScreen.style.display !== 'none') {
+                        counter++;
+                        if (counter % 3 === 0) {
+                            loadingText.textContent = originalText;
+                        } else {
+                            loadingText.textContent = originalText + '.'.repeat(counter % 3);
+                        }
+                    }
+                }, 500);
+                
+                // Terminal typing effect for contact button
+                const contactButton = document.querySelector('.contact-button');
+                contactButton.addEventListener('click', function() {
+                    // Copy the contact info to clipboard
+                    navigator.clipboard.writeText('@psivaita').then(() => {
+                        showNotification('Contact: @psivaita - Copied to clipboard!', 'success');
+                    });
+                });
+            }
+
+            // Function to load Scamalytics with the user's actual IP
+            function loadScamalyticsWithIP() {
+                if (userIP) {
+                    const scamalyticsUrl = `https://scamalytics.com/ip/${userIP}`;
+                    loadTest(scamalyticsUrl, 'Scamalytics Fraud Score');
+                } else {
+                    // If we don't have the IP yet, try to get it first
+                    showNotification('Fetching your IP address...', 'warning');
+                    detectUserCountry().then(() => {
+                        if (userIP) {
+                            const scamalyticsUrl = `https://scamalytics.com/ip/${userIP}`;
+                            loadTest(scamalyticsUrl, 'Scamalytics Fraud Score');
+                        } else {
+                            // Fallback to the generic URL if we still can't get the IP
+                            loadTest('https://scamalytics.com/ip', 'Scamalytics Fraud Score');
+                        }
+                    });
+                }
+            }
+
+            function loadTest(url, title) {
+                currentUrl = url;
+                currentTestTitle.textContent = title;
+                
+                // Fade out the iframe first, then load new content
+                testFrame.style.opacity = '0';
+                loadingScreen.style.opacity = '1';
+                loadingScreen.style.display = 'flex';
+                
+                // Small delay to allow animation to complete
+                setTimeout(() => {
+                    testFrame.src = url;
+                    directLinkWarning.style.display = 'none';
+                }, 300);
+            }
+
+            function refreshIframe() {
+                if (currentUrl) {
+                    loadingScreen.style.opacity = '1';
+                    loadingScreen.style.display = 'flex';
+                    testFrame.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        testFrame.src = '';
+                        setTimeout(() => {
+                            testFrame.src = currentUrl;
+                        }, 100);
+                    }, 300);
+                    
+                    showNotification(translations[currentLanguage].refreshText, 'warning');
+                }
+            }
+
+            function openDirectLink() {
+                if (currentUrl) {
+                    window.open(currentUrl, '_blank');
+                    showNotification(translations[currentLanguage].openingText, 'success');
+                }
+            }
+
+            function addToReport() {
+                if (currentUrl) {
+                    const timestamp = new Date().toLocaleString();
+                    const testName = currentTestTitle.textContent;
+                    const entry = `======================================
+${testName} (${timestamp})
+======================================
+URL: ${currentUrl}
+--------------------------------------
+
+`;
+                    
+                    reportData += entry;
+                    reportContent.textContent = reportData;
+                    localStorage.setItem('indra-antidetect-report', reportData);
+                    
+                    showNotification(translations[currentLanguage].addedToReportText, 'success');
+                    reportSection.style.display = 'block';
+                }
+            }
+
+            function copyReport() {
+                if (reportData.trim()) {
+                    navigator.clipboard.writeText(reportData).then(() => {
+                        showNotification(translations[currentLanguage].reportCopiedText, 'success');
+                    }).catch(err => {
+                        showNotification(translations[currentLanguage].copyFailedText + err, 'error');
+                    });
+                } else {
+                    showNotification(translations[currentLanguage].nothingToCopyText, 'warning');
+                }
+            }
+
+            function clearReport() {
+                if (reportData.trim()) {
+                    reportData = '';
+                    reportContent.textContent = '';
+                    localStorage.removeItem('indra-antidetect-report');
+                    showNotification(translations[currentLanguage].reportClearedText, 'success');
+                } else {
+                    showNotification(translations[currentLanguage].reportEmptyText, 'warning');
+                }
+            }
+
+            function toggleReport() {
+                const isVisible = reportSection.style.display === 'block';
+                const texts = translations[currentLanguage];
+                
+                if (isVisible) {
+                    reportSection.style.animation = 'slideInUp 0.4s reverse forwards';
+                    setTimeout(() => {
+                        reportSection.style.display = 'none';
+                    }, 380);
+                    toggleReportBtn.querySelector('span').textContent = texts.showBtnText;
+                    toggleReportBtn.querySelector('i').className = 'fas fa-chevron-up';
+                } else {
+                    reportSection.style.display = 'block';
+                    reportSection.style.animation = 'slideInUp 0.4s forwards';
+                    toggleReportBtn.querySelector('span').textContent = texts.hideBtnText;
+                    toggleReportBtn.querySelector('i').className = 'fas fa-chevron-down';
+                }
+            }
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('show');
+            }
+
+            function showNotification(message, type = 'success') {
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                
+                // Reset animation
+                notification.style.animation = 'none';
+                notification.offsetHeight; // Trigger reflow
+                notification.style.animation = 'notificationSlideIn 0.3s forwards';
+                
+                notification.classList.add('show');
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'notificationSlideOut 0.3s forwards';
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Terminal typing effect for tool introduction
+            setTimeout(() => {
+                showNotification(translations[currentLanguage].welcomeText, 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
